@@ -103,8 +103,20 @@ export class SingularMatrixError extends Error {
   }
 }
 
-/** Inversa por Gauss-Jordan con pivoteo parcial. */
+/**
+ * Inversa con equilibrado diagonal: A = D·S·D con D = diag(√|aᵢᵢ|), así
+ * A⁻¹ = D⁻¹·S⁻¹·D⁻¹. Evita falsas singularidades cuando los regresores
+ * tienen escalas muy distintas (p.ej. x y x⁴).
+ */
 export function inverse(a: Matrix): Matrix {
+  const d = a.map((r, i) => Math.sqrt(Math.abs(r[i])) || 1);
+  const s = a.map((r, i) => r.map((v, j) => v / (d[i] * d[j])));
+  const si = inverseRaw(s);
+  return si.map((r, i) => r.map((v, j) => v / (d[i] * d[j])));
+}
+
+/** Inversa por Gauss-Jordan con pivoteo parcial. */
+function inverseRaw(a: Matrix): Matrix {
   const n = a.length;
   const m = a.map((row, i) => {
     const r = new Array<number>(2 * n).fill(0);
