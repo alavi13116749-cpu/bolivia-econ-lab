@@ -25,6 +25,8 @@ for (let from = 0, st; (st = between(src, '<style', '</style>', from)); from = s
 const headEnd = src.indexOf('</head>', script.end);
 const body = between(src, '<body>', '</body>', headEnd);
 const links = (src.slice(0, scriptOpen).match(/<link[^>]+rel="(?:stylesheet|preconnect)"[^>]*>/gi) ?? []);
-const out = [title?.text ?? '<title>Bolivia Econ Lab</title>', ...links, ...styles, body.text.slice(6, -7).trim(), script.text].join('\n');
+// U+FFFD literal (p.ej. en marked) se escribe como escape JS equivalente: el publicador lo rechaza como texto dañado.
+const scriptText = script.text.replaceAll('\uFFFD', '\\uFFFD');
+const out = [title?.text ?? '<title>Bolivia Econ Lab</title>', ...links, ...styles, body.text.slice(6, -7).trim(), scriptText].join('\n');
 writeFileSync('dist-artifact/bolivia-econ-lab.html', out);
 console.log(`dist-artifact/bolivia-econ-lab.html (${(out.length / 1e6).toFixed(2)} MB, ${styles.length} estilos)`);
