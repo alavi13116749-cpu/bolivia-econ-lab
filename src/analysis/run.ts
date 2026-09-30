@@ -95,6 +95,7 @@ export function runAnalysis(ds: Dataset, spec: AnalysisSpec): AnalysisResult {
       return { kind: 'ols', spec, title: `MCO: ${spec.y} sobre ${spec.x.join(', ')}`, report, res, tests, vif: vifs, dropped: d.dropped, y: d.y, index: d.rows.map((i) => ds.index?.[i] ?? String(i + 1)) };
     }
     case 'binary': {
+      if (!spec.x.length) throw new Error('Elija al menos un regresor.');
       const d = buildDesign(ds, spec.y, spec.x);
       const res = binaryModel(d.y, d.X, d.names, spec.link, spec.y);
       const lpm = ols(d.y, d.X, d.names, spec.y, { covType: 'HC1' });
@@ -113,6 +114,10 @@ export function runAnalysis(ds: Dataset, spec: AnalysisSpec): AnalysisResult {
       return { kind: 'binary', spec, title: `${L}: ${spec.y}`, report, res, lpm };
     }
     case 'iv': {
+      if (!spec.endog.length) throw new Error('Indique al menos un regresor endógeno.');
+      if (spec.instruments.length < spec.endog.length) throw new Error(`Modelo no identificado: hay ${spec.instruments.length} instrumento(s) excluido(s) para ${spec.endog.length} endógena(s). La condición de orden exige al menos tantos instrumentos como endógenas.`);
+      const overlap = spec.instruments.filter((z) => spec.exog.includes(z) || spec.endog.includes(z));
+      if (overlap.length) throw new Error(`${overlap.join(', ')} no puede ser a la vez instrumento excluido y regresor.`);
       const all = [...spec.exog, ...spec.endog, ...spec.instruments];
       const d = buildDesign(ds, spec.y, all);
       const ne = spec.exog.length;
@@ -134,7 +139,8 @@ export function runAnalysis(ds: Dataset, spec: AnalysisSpec): AnalysisResult {
       return { kind: 'iv', spec, title: `MC2E: ${spec.y}`, report, res };
     }
     case 'panel': {
-      if (!ds.panel) throw new Error('Este dataset no tiene estructura de panel (individuo × tiempo).');
+      if (!ds.panel) throw new Error('Este dataset no tiene estructura de panel (individuo × tiempo). Use «Panel departamental».');
+      if (!spec.x.length) throw new Error('Elija al menos un regresor.');
       const d = buildDesign(ds, spec.y, spec.x, false);
       const res = panelModels({ y: d.y, yName: spec.y, X: d.X, names: spec.x, entity: d.rows.map((i) => ds.panel!.entity[i]), time: d.rows.map((i) => ds.panel!.time[i]) });
       const tab = (name: string, r: OLSResult) => `${name.padEnd(16)} ` + spec.x.map((x) => { const j = r.names.indexOf(x); return `${x} = ${fmt(r.beta[j])} (${fmt(r.se[j])})${stars(r.p[j])}`; }).join('  ');
@@ -228,6 +234,7 @@ export function runAnalysis(ds: Dataset, spec: AnalysisSpec): AnalysisResult {
       return { kind: 'var', spec: { ...spec, p }, title: `VAR(${p}): ${spec.variables.join(', ')}`, report, res, selection, granger, irf: ir, fevd: fe, forecast, data };
     }
     case 'coint': {
+      if (!spec.x.length) throw new Error('Elija al menos una variable para la relación de largo plazo.');
       const ys = resolveTerm(spec.y, ds);
       const xs = spec.x.map((x) => resolveTerm(x, ds));
       const rows = ys.map((_, i) => i).filter((i) => Number.isFinite(ys[i]) && xs.every((x) => Number.isFinite(x[i])));
