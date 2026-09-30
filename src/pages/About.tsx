@@ -5,7 +5,7 @@ const TEXT = String.raw`
 **Auxiliar IA — Bolivia Econ Lab** es una aplicación educativa para estudiantes de Econometría II y Economía Monetaria II. Todo el cálculo ocurre en su navegador: no hay servidor y sus datos no salen de su computadora (salvo lo que usted envíe al Auxiliar IA).
 
 ## El motor econométrico
-Escrito desde cero en TypeScript y **validado automáticamente contra statsmodels y linearmodels** (34 pruebas):
+Escrito desde cero en TypeScript y **validado automáticamente contra statsmodels y linearmodels** (24 pruebas de validación numérica, más 10 de integración que verifican que cada dataset didáctico recupera sus parámetros verdaderos):
 
 | Método | Qué se compara |
 |---|---|

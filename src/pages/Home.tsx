@@ -103,7 +103,7 @@ export default function Home() {
 
       <section className="grid gap-4 border-t border-line pt-8 md:grid-cols-3">
         {[
-          ['Resultados verificables', 'El motor numérico pasa 34 pruebas automáticas contra statsmodels y linearmodels: coeficientes, errores robustos, ADF con tablas de MacKinnon, VAR, Logit, panel.'],
+          ['Resultados verificables', 'El motor numérico se valida con 24 pruebas automáticas contra statsmodels y linearmodels (coeficientes, errores robustos, ADF con tablas de MacKinnon, VAR, Logit, panel) y 10 pruebas de integración.'],
           ['Bolivia en cada unidad', 'Hiperinflación de 1985 y DS 21060, bolivianización, encaje diferenciado, régimen cambiario, mercado de la quinua y panel departamental.'],
           ['De la clase al software', 'Cada análisis genera su equivalente en Stata, R, Python y EViews para reproducirlo en la práctica o el trabajo de grado.'],
         ].map(([t, d]) => (
